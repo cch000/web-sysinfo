@@ -1,0 +1,1 @@
+Tiny web server to get system info for my homelab
