@@ -10,29 +10,33 @@
       nodejs
     ];
 
-    info-server = pkgs.buildNpmPackage rec {
-      name = "info-server";
+    name = "info-server";
+
+    info-server = pkgs.buildNpmPackage {
+      inherit name;
 
       src = ./.;
-
-      dontNpmBuild = true;
 
       npmDepsHash = "sha256-vR2Ap08SpK95ETfbQA6G945Yt90MlR6cA0oTqahqetg=";
 
       version = "0.1.0";
 
-      postInstall = ''
-        mkdir -p $out/bin
-        exe="$out/bin/${name}"
-        lib="$out/lib/node_modules/${name}"
+      dontNpmBuild = true;
 
-        touch $exe
-        chmod +x $exe
-        echo "
-            #!/usr/bin/env bash
-            cd $lib
-            ${pkgs.nodejs_20}/bin/node ./src/main.js" > $exe
+      installPhase = ''
+        mkdir -p $out/bin $out/lib
+        cp -rv ./node_modules $out/lib
+        cp -rv ./src/main.js $out/lib
+        cp -rv package.json $out/lib
+
+        cat > $out/bin/${name} << EOF
+        #!/bin/sh
+        ${pkgs.lib.getExe pkgs.nodejs} $out/lib/main.js
+        EOF
+
+        chmod +x $out/bin/${name}
       '';
+      meta.mainProgram = "${name}";
     };
   in {
     packages.${pkgs.system} = {
