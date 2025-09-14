@@ -8,7 +8,9 @@ app.use(express.json());
 
 app.get('/status', async (req, res) => {
 
-  let output = (await exec('systemctl is-system-running')).stdout.trim();
+  let output = exec('systemctl is-system-running').then(x => x.stdout).catch(
+    x => console.error("Error: " + x.stderr)
+  );
 
   let availmem = (os.freemem() / (1024 * 1024 * 1024))
     .toPrecision(4)
