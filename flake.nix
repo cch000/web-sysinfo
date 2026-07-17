@@ -5,6 +5,7 @@
 
   outputs = {nixpkgs, ...}: let
     pkgs = nixpkgs.legacyPackages.x86_64-linux;
+    inherit (pkgs.stdenv.hostPlatform) system;
 
     buildInputs = with pkgs; [
       nodejs
@@ -39,12 +40,12 @@
       meta.mainProgram = "${name}";
     };
   in {
-    packages.${pkgs.system} = {
+    packages.${system} = {
       inherit info-server;
       default = info-server;
     };
 
-    devShells.${pkgs.system}.default = pkgs.mkShell {
+    devShells.${system}.default = pkgs.mkShell {
       inherit buildInputs;
 
       packages = with pkgs; [
